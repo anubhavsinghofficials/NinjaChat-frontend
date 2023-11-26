@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+/* FIREFOX */
+* {
+    /* scrollbar-width:none; */
+    scrollbar-color: red green;
+}  
+
+
+/* CHROME & others */
+*::-webkit-scrollbar{
+    width: 1.5em;
+    height: 1.5em;
+}
+
+*::-webkit-scrollbar-thumb{
+    /* background-color: rgba(0, 0, 255, 0.765); */
+    background: linear-gradient(red,blue);
+    border-radius: 100vw;
+    border: 4px solid rgba(255, 255, 0, 0.772);
+}
+*::-webkit-scrollbar-thumb:hover{
+    background-color: blue;
+}
+
+
+*::-webkit-scrollbar-track{
+    background-color: rgba(255, 255, 0, 0.772);
+    border-radius: 100vw;
+    margin-block: 2em;
+}
+*::-webkit-scrollbar-track:hover{
+    background-color: yellow;
+}
+* {
+    -webkit-tap-highlight-color: transparent;
+}
