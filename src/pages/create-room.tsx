@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { TUserFormType, ZodUserFormSchema } from '@/types/user-form';
+import { TUserForm, ZodUserFormSchema } from '@/types/user-form';
 import logo from '../assets/ninjachat-logo.png';
 import TextInput from '@/components/ui/input-text';
 import Button from '@/components/ui/button';
@@ -12,12 +12,12 @@ function CreateRoom() {
     register,
     formState: { errors },
     handleSubmit,
-  } = useForm<TUserFormType>({
+  } = useForm<TUserForm>({
     mode: 'onSubmit',
     resolver: zodResolver(ZodUserFormSchema),
   });
 
-  const onSubmit = (data: TUserFormType) => {
+  const onSubmit = (data: TUserForm) => {
     console.log(data);
   };
 

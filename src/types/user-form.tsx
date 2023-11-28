@@ -9,4 +9,4 @@ export const ZodUserFormSchema = z.object({
     .max(16, 'Name should not exceed length 16'),
 });
 
-export type TUserFormType = z.infer<typeof ZodUserFormSchema>;
+export type TUserForm = z.infer<typeof ZodUserFormSchema>;

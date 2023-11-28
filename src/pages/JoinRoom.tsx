@@ -3,7 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import logo from '../assets/ninjachat-logo.png';
 import { motion } from 'framer-motion';
 import TextInput from '@/components/ui/input-text';
-import { TUserFormType, ZodUserFormSchema } from '@/types/user-form';
+import { TUserForm, ZodUserFormSchema } from '@/types/user-form';
 import SmallBlobs from '@/components/sections/background/blobs-small';
 import Button from '@/components/ui/button';
 
@@ -14,12 +14,12 @@ function JoinRoom() {
     register,
     formState: { errors },
     handleSubmit,
-  } = useForm<TUserFormType>({
+  } = useForm<TUserForm>({
     mode: 'onSubmit',
     resolver: zodResolver(ZodUserFormSchema),
   });
 
-  const onSubmit = (data: TUserFormType) => {
+  const onSubmit = (data: TUserForm) => {
     console.log(data);
   };
 
