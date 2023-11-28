@@ -1,6 +1,7 @@
 import { Route, Routes } from 'react-router-dom';
 import Intro from './pages/intro';
 import CreateRoom from './pages/create-room';
+import JoinRoom from './pages/JoinRoom';
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
         {/* intro must be only for the first time (localhost), not a route !! */}
         <Route path='/' element={<Intro />} />
         <Route path='/create-room' element={<CreateRoom />} />
+        <Route path='/join-room' element={<JoinRoom />} />
         {/* <Route path='*' element={<404 Page />} /> */}
       </Routes>
     </div>
