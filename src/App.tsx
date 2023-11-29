@@ -1,8 +1,9 @@
 import { Route, Routes } from 'react-router-dom';
-import Intro from './pages/intro';
 import CreateRoom from './pages/create-room';
-import JoinRoom from './pages/JoinRoom';
+import JoinRoom from './pages/Join-room';
 import Chat from './pages/Chat';
+import ChatAuth from './components/sections/auth/chat-auth';
+import JoinRoomAuth from './components/sections/auth/join-room-auth';
 
 function App() {
   return (
@@ -10,12 +11,15 @@ function App() {
       className={`flex h-screen w-screen items-center justify-center overflow-hidden bg-black`}
     >
       <Routes>
-        {/* intro must be only for the first time (localhost), not a route !! */}
-        <Route path='/' element={<Intro />} />
         <Route path='/create-room' element={<CreateRoom />} />
-        <Route path='/join-room' element={<JoinRoom />} />
-        <Route path='/chat' element={<Chat />} />
-        {/* <Route path='*' element={<404 Page />} /> */}
+
+        <Route path='/join-room' element={<JoinRoomAuth />}>
+          <Route index element={<JoinRoom />} />
+        </Route>
+
+        <Route path='/chat' element={<ChatAuth />}>
+          <Route index element={<Chat />} />
+        </Route>
       </Routes>
     </div>
   );

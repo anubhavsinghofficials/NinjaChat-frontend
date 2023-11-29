@@ -6,10 +6,21 @@ import TextInput from '@/components/ui/input-text';
 import { TUserForm, ZodUserFormSchema } from '@/types/user-form';
 import SmallBlobs from '@/components/sections/background/blobs-small';
 import Button from '@/components/ui/button';
-
-const friend = 'Gugu Singh';
+import { useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { socketStore } from '@/store/client-store/socket';
 
 function JoinRoom() {
+  const [invitor, setInvitor] = useState<string>('');
+  const [searchParams] = useSearchParams();
+  const { chatSocket } = socketStore();
+  const Navigate = useNavigate();
+
+  useEffect(() => {
+    const invitor = searchParams.get('invitor') || '';
+    setInvitor(invitor);
+  }, []);
+
   const {
     register,
     formState: { errors },
@@ -20,7 +31,10 @@ function JoinRoom() {
   });
 
   const onSubmit = (data: TUserForm) => {
-    console.log(data);
+    const name = data.name;
+    const room = searchParams.get('room');
+    chatSocket.emit('new-join-request', { name, room });
+    Navigate(`/chat?room=${room}`, { state: { name: name } });
   };
 
   return (
@@ -39,8 +53,12 @@ function JoinRoom() {
           </p>
         </div>
         <div className={`px-2 pt-3 text-slate-100`}>
-          You are invited by &nbsp;
-          <span className={`pr-1 text-red-400`}>{friend}</span>
+          {invitor ? (
+            <span className={`text-red-400`}>{invitor}</span>
+          ) : (
+            <span>A Ninja</span>
+          )}
+          <span className={`pl-1`}>invited you !!</span>
         </div>
         <form
           className='xs:pt-10 flex flex-col gap-y-4 pt-6'

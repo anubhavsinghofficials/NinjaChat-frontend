@@ -4,27 +4,39 @@ import { IoSend } from 'react-icons/io5';
 import { FaUsers } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import { FaLink } from 'react-icons/fa';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FaRegCopy } from 'react-icons/fa6';
 import { TMessage, ZodMessageSchema } from '@/types/message';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
 import logo from '../assets/ninjachat-logo.png';
 import LargeBlobs from '@/components/sections/background/blobs-large';
 import ChatSection from '@/components/sections/widgets/chat-section';
 import Details from '@/components/sections/widgets/details';
 import Friends from '@/components/sections/widgets/Friends';
 import TextInput from '@/components/ui/input-text';
-
-const roomLink = 'temporaryRoomLink';
+import { useSearchParams, useLocation } from 'react-router-dom';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 
 const Chat = () => {
   const [toggleScrollToBottom, setToggleScrollToBottom] = useState(false);
-  const [showDetails, setShowDetails] = useState(false);
-  const [showFriends, setShowFriends] = useState(false);
+  const [showDetails, setShowDetails] = useState<boolean>(false);
+  const [showFriends, setShowFriends] = useState<boolean>(false);
+  const [searchParams] = useSearchParams();
+  const [roomLink, setRoomLink] = useState<string>('');
+  const location = useLocation();
+
+  useEffect(() => {
+    const room = searchParams.get('room');
+    const name = location.state.name;
+    const host = window.location.hostname;
+    const protocol = window.location.protocol;
+    const port = window.location.port;
+    const url = `${protocol}//${host}:${port}/join-room?room=${room}&invitor=${name}`;
+    setRoomLink(url);
+  }, []);
 
   const form = useForm<TMessage>({
     mode: 'onSubmit',

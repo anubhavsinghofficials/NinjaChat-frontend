@@ -6,8 +6,20 @@ import logo from '../assets/ninjachat-logo.png';
 import TextInput from '@/components/ui/input-text';
 import Button from '@/components/ui/button';
 import SmallBlobs from '@/components/sections/background/blobs-small';
+import { useEffect } from 'react';
+import { socketStore } from '@/store/client-store/socket';
+import { useNavigate } from 'react-router-dom';
 
 function CreateRoom() {
+  const { chatSocket } = socketStore();
+  const Navigate = useNavigate();
+
+  useEffect(() => {
+    chatSocket.on('connect', () => {
+      console.log('i connected');
+    });
+  }, []);
+
   const {
     register,
     formState: { errors },
@@ -18,7 +30,12 @@ function CreateRoom() {
   });
 
   const onSubmit = (data: TUserForm) => {
-    console.log(data);
+    const currentDate = new Date();
+    const currentIIsoDate = currentDate.toISOString();
+    const creator = data.name;
+    const room = `room-${currentIIsoDate}_by-${creator}`;
+    chatSocket.emit('new-join-request', { name: creator, room });
+    Navigate(`/chat?room=${room}`, { state: { name: creator } });
   };
 
   return (
@@ -54,7 +71,7 @@ function CreateRoom() {
               {errors.name?.message}
             </p>
           </div>
-          <Button>Start Chatting</Button>
+          <Button>Create Room</Button>
         </form>
         <div
           className={`absolute bottom-0 right-0 aspect-square  translate-y-[100%] border-l-[4rem] border-t-[4rem] border-l-transparent border-t-black shadow-md`}

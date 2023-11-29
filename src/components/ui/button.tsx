@@ -13,7 +13,7 @@ const Button = React.forwardRef<HTMLButtonElement, TbuttonProps>(
   ) => {
     const themeStyles = {
       primary:
-        'text-black bg-neutral-100 hover:bg-white active:bg-neutral-300 hover:shadow-neutral-300 active:shadow-black',
+        'text-black bg-neutral-200 hover:bg-white active:bg-neutral-300 hover:shadow-neutral-300 active:shadow-black',
       secondary:
         'text-white ring-1 ring-neutral-100 hover:ring-white active:ring-neutral-300 hover:shadow-neutral-300 active:shadow-black',
     };
