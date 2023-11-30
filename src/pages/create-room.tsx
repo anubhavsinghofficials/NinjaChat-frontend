@@ -6,19 +6,10 @@ import logo from '../assets/ninjachat-logo.png';
 import TextInput from '@/components/ui/input-text';
 import Button from '@/components/ui/button';
 import SmallBlobs from '@/components/sections/background/blobs-small';
-import { useEffect } from 'react';
-import { socketStore } from '@/store/client-store/socket';
 import { useNavigate } from 'react-router-dom';
 
 function CreateRoom() {
-  const { chatSocket } = socketStore();
   const Navigate = useNavigate();
-
-  useEffect(() => {
-    chatSocket.on('connect', () => {
-      console.log('i connected');
-    });
-  }, []);
 
   const {
     register,
@@ -34,7 +25,6 @@ function CreateRoom() {
     const currentIIsoDate = currentDate.toISOString();
     const creator = data.name;
     const room = `room-${currentIIsoDate}_by-${creator}`;
-    chatSocket.emit('new-join-request', { name: creator, room });
     Navigate(`/chat?room=${room}`, { state: { name: creator } });
   };
 

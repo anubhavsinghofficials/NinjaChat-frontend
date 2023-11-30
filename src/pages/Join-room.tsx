@@ -8,12 +8,10 @@ import SmallBlobs from '@/components/sections/background/blobs-small';
 import Button from '@/components/ui/button';
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { socketStore } from '@/store/client-store/socket';
 
 function JoinRoom() {
   const [invitor, setInvitor] = useState<string>('');
   const [searchParams] = useSearchParams();
-  const { chatSocket } = socketStore();
   const Navigate = useNavigate();
 
   useEffect(() => {
@@ -33,7 +31,6 @@ function JoinRoom() {
   const onSubmit = (data: TUserForm) => {
     const name = data.name;
     const room = searchParams.get('room');
-    chatSocket.emit('new-join-request', { name, room });
     Navigate(`/chat?room=${room}`, { state: { name: name } });
   };
 

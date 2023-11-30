@@ -19,14 +19,16 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { socketStore } from '@/store/client-store/socket';
 
 const Chat = () => {
-  const [toggleScrollToBottom, setToggleScrollToBottom] = useState(false);
   const [showDetails, setShowDetails] = useState<boolean>(false);
   const [showFriends, setShowFriends] = useState<boolean>(false);
+  const [socketIdArray, setSocketIdArray] = useState<string[]>([]);
   const [searchParams] = useSearchParams();
   const [roomLink, setRoomLink] = useState<string>('');
   const location = useLocation();
+  const { chatSocket } = socketStore();
 
   useEffect(() => {
     const room = searchParams.get('room');
@@ -36,6 +38,27 @@ const Chat = () => {
     const port = window.location.port;
     const url = `${protocol}//${host}:${port}/join-room?room=${room}&invitor=${name}`;
     setRoomLink(url);
+
+    chatSocket.on('connect', () => {
+      console.log('i connected');
+    });
+    chatSocket.emit('new-join-request', { name, room });
+    chatSocket.emit('sendSocketId');
+    chatSocket.on('socketid', (data) => {
+      let socketIds: string[] = [];
+      const socketIdsJson = sessionStorage.getItem('socketIds');
+      if (socketIdsJson) {
+        socketIds = JSON.parse(socketIdsJson);
+      }
+      socketIds.push(data.socketId);
+      setSocketIdArray(socketIds);
+      sessionStorage.setItem('socketIds', JSON.stringify(socketIds));
+    });
+
+    return () => {
+      chatSocket.off('connect');
+      chatSocket.off('socketid');
+    };
   }, []);
 
   const form = useForm<TMessage>({
@@ -46,10 +69,10 @@ const Chat = () => {
   const { register, handleSubmit, reset } = form;
 
   const onSubmit = (data: TMessage) => {
-    console.log(data);
     reset();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    setToggleScrollToBottom((prev) => !prev);
+    const room = searchParams.get('room');
+    const name = location.state.name;
+    chatSocket.emit('message', { message: data.message, room, name });
   };
 
   const copyRoomLink = () => {
@@ -122,7 +145,7 @@ const Chat = () => {
           <Friends showFriends={showFriends} />
         </div>
 
-        <ChatSection toggleScrollToBottom={toggleScrollToBottom} />
+        <ChatSection socketIdArray={socketIdArray} />
         <form
           className='flex w-full gap-x-2'
           onSubmit={handleSubmit(onSubmit)}

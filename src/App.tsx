@@ -1,9 +1,12 @@
 import { Route, Routes } from 'react-router-dom';
 import CreateRoom from './pages/create-room';
 import JoinRoom from './pages/Join-room';
-import Chat from './pages/Chat';
+// import Chat from './pages/Chat';
 import ChatAuth from './components/sections/auth/chat-auth';
 import JoinRoomAuth from './components/sections/auth/join-room-auth';
+import { lazy } from 'react';
+import LazyRoute from './components/sections/auth/lazy-route';
+const Chat = lazy(() => import('./pages/Chat'));
 
 function App() {
   return (
@@ -18,7 +21,14 @@ function App() {
         </Route>
 
         <Route path='/chat' element={<ChatAuth />}>
-          <Route index element={<Chat />} />
+          <Route
+            index
+            element={
+              <LazyRoute>
+                <Chat />
+              </LazyRoute>
+            }
+          />
         </Route>
       </Routes>
     </div>

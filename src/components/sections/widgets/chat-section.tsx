@@ -1,51 +1,91 @@
-import { useEffect, useRef } from "react"
-import { twJoin } from "tailwind-merge"
+import { socketStore } from '@/store/client-store/socket';
+import { useEffect, useRef, useState } from 'react';
+import { twJoin } from 'tailwind-merge';
 
-const message =
-  "Bhai aur kitne din lagenge project me.. tu samajh rha h tu apni asli khushi to taal rha h.. kyuki stations pe to khushi milegi hi.. mainak parvat"
+type TChatSection = { socketIdArray: string[] };
+type TMessageData = { user: string; message: string; socketId: string };
 
-const byMe = false
+const ChatSection = ({ socketIdArray }: TChatSection) => {
+  const chatSectionRef = useRef<HTMLDivElement>(null);
+  const { chatSocket } = socketStore();
+  const [messages, setMessages] = useState<TMessageData[]>([]);
 
-const ChatSection = ({ toggleScrollToBottom }: { toggleScrollToBottom?: boolean }) => {
-  const chatSectionRef = useRef<HTMLDivElement>(null)
+  const scrollToBottom = () => {
+    setTimeout(() => {
+      if (chatSectionRef && chatSectionRef.current) {
+        chatSectionRef.current.scrollTo({
+          top: chatSectionRef.current.scrollHeight,
+          behavior: 'smooth',
+        });
+      }
+    }, 100);
+  };
 
   useEffect(() => {
-    if (chatSectionRef && chatSectionRef.current) {
-      chatSectionRef.current.scrollTo({
-        top: chatSectionRef.current.scrollHeight,
-        behavior: "smooth",
-      })
+    scrollToBottom();
+    const messagesJson = sessionStorage.getItem('messages');
+    if (messagesJson) {
+      setMessages(JSON.parse(messagesJson));
     }
-  }, [toggleScrollToBottom])
+  }, []);
+
+  useEffect(() => {
+    chatSocket.on('message', (data: TMessageData) => {
+      console.log(data);
+      let messages: TMessageData[] = [];
+      const messagesJson = sessionStorage.getItem('messages');
+      if (messagesJson) {
+        messages = JSON.parse(messagesJson);
+      }
+      messages.push(data);
+      setMessages(messages);
+      sessionStorage.setItem('messages', JSON.stringify(messages));
+      scrollToBottom();
+    });
+
+    return () => {
+      chatSocket.off('message');
+      // chatSocket.disconnect();
+    };
+  }, []);
+
+  const byMe = (socketId: string) => socketIdArray.includes(socketId);
 
   return (
     <div
       ref={chatSectionRef}
-      className={`mt-auto overflow-y-scroll flex flex-col gap-y-2`}>
-      {Array.from({ length: 20 }).map((_, index) => (
+      className={`mt-auto flex flex-col gap-y-2 overflow-y-scroll`}
+    >
+      {messages.map((message, index) => (
         <div
-          className={`px-2 relative flex ${byMe && "justify-end"}`}
-          key={index}>
+          className={twJoin(
+            `relative flex px-2`,
+            byMe(message.socketId) && 'justify-end'
+          )}
+          key={index}
+        >
           <div
             className={twJoin(
-              `max-w-[80%] p-4 pb-5 relative rounded-b-lg bg-opacity-60`,
-              byMe && "rounded-tl-lg text-neutral-100 bg-neutral-700",
-              !byMe && "rounded-tr-lg text-neutral-200 bg-neutral-800"
-            )}>
+              `relative max-w-[80%] rounded-b-lg bg-opacity-60 p-4 pb-5`,
+              byMe(message.socketId)
+                ? 'rounded-tl-lg bg-neutral-700 text-neutral-100'
+                : 'rounded-tr-lg bg-neutral-800 text-neutral-200'
+            )}
+          >
             <p
               className={twJoin(
                 `font-semibold`,
-                byMe && "text-red-400",
-                !byMe && "text-blue-400"
-              )}>
-              {byMe ? "You" : "Friend a"}
+                byMe(message.socketId) ? 'text-red-400' : 'text-blue-400'
+              )}
+            >
+              {byMe(message.socketId) ? 'You' : message.user}
             </p>
-            {message}
+            {message.message}
           </div>
         </div>
       ))}
     </div>
-  )
-}
+  );
+};
 
-export default ChatSection
+export default ChatSection;
