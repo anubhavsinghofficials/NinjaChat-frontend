@@ -2,10 +2,10 @@ import { socketStore } from '@/store/client-store/socket';
 import { useEffect, useRef, useState } from 'react';
 import { twJoin } from 'tailwind-merge';
 
-type TChatSection = { socketIdArray: string[] };
+type TChatSection = { socketIdArray: string[]; room: string };
 type TMessageData = { user: string; message: string; socketId: string };
 
-const ChatSection = ({ socketIdArray }: TChatSection) => {
+const ChatSection = ({ socketIdArray, room }: TChatSection) => {
   const chatSectionRef = useRef<HTMLDivElement>(null);
   const { chatSocket } = socketStore();
   const [messages, setMessages] = useState<TMessageData[]>([]);
@@ -23,7 +23,7 @@ const ChatSection = ({ socketIdArray }: TChatSection) => {
 
   useEffect(() => {
     scrollToBottom();
-    const messagesJson = sessionStorage.getItem('messages');
+    const messagesJson = sessionStorage.getItem(room);
     if (messagesJson) {
       setMessages(JSON.parse(messagesJson));
     }
@@ -31,15 +31,14 @@ const ChatSection = ({ socketIdArray }: TChatSection) => {
 
   useEffect(() => {
     chatSocket.on('message', (data: TMessageData) => {
-      console.log(data);
       let messages: TMessageData[] = [];
-      const messagesJson = sessionStorage.getItem('messages');
+      const messagesJson = sessionStorage.getItem(room);
       if (messagesJson) {
         messages = JSON.parse(messagesJson);
       }
       messages.push(data);
       setMessages(messages);
-      sessionStorage.setItem('messages', JSON.stringify(messages));
+      sessionStorage.setItem(room, JSON.stringify(messages));
       scrollToBottom();
     });
 

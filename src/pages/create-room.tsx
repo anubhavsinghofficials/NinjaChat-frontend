@@ -53,7 +53,7 @@ function CreateRoom() {
               id='name'
               {...register('name')}
               error={errors.name}
-              placeholder='Choose Your Name'
+              placeholder='Enter Your Name'
               autoComplete='off'
               autoFocus
             />
@@ -61,7 +61,7 @@ function CreateRoom() {
               {errors.name?.message}
             </p>
           </div>
-          <Button>Create Room</Button>
+          <Button>Create Chat</Button>
         </form>
         <div
           className={`absolute bottom-0 right-0 aspect-square  translate-y-[100%] border-l-[4rem] border-t-[4rem] border-l-transparent border-t-black shadow-md`}

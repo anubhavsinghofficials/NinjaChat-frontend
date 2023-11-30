@@ -1,7 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IoSend } from 'react-icons/io5';
-import { FaUsers } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import { FaLink } from 'react-icons/fa';
 import { useEffect, useState } from 'react';
@@ -11,24 +10,24 @@ import logo from '../assets/ninjachat-logo.png';
 import LargeBlobs from '@/components/sections/background/blobs-large';
 import ChatSection from '@/components/sections/widgets/chat-section';
 import Details from '@/components/sections/widgets/details';
-import Friends from '@/components/sections/widgets/Friends';
 import TextInput from '@/components/ui/input-text';
-import { useSearchParams, useLocation } from 'react-router-dom';
+import { useSearchParams, useLocation, NavLink } from 'react-router-dom';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { socketStore } from '@/store/client-store/socket';
+import { toastStore } from '@/store/client-store/toast';
 
 const Chat = () => {
   const [showDetails, setShowDetails] = useState<boolean>(false);
-  const [showFriends, setShowFriends] = useState<boolean>(false);
   const [socketIdArray, setSocketIdArray] = useState<string[]>([]);
   const [searchParams] = useSearchParams();
   const [roomLink, setRoomLink] = useState<string>('');
   const location = useLocation();
   const { chatSocket } = socketStore();
+  const { setToggleToast } = toastStore();
 
   useEffect(() => {
     const room = searchParams.get('room');
@@ -54,6 +53,10 @@ const Chat = () => {
       setSocketIdArray(socketIds);
       sessionStorage.setItem('socketIds', JSON.stringify(socketIds));
     });
+    chatSocket.on('new-ninja', (data) => {
+      console.log(data.name);
+      setToggleToast(`${data.name} joined the chat !!`);
+    });
 
     return () => {
       chatSocket.off('connect');
@@ -78,12 +81,7 @@ const Chat = () => {
   const copyRoomLink = () => {
     navigator.clipboard.writeText(roomLink);
   };
-  const handleFriends = () => {
-    setShowDetails(false);
-    setShowFriends((prev) => !prev);
-  };
   const handleDetails = () => {
-    setShowFriends(false);
     setShowDetails((prev) => !prev);
   };
 
@@ -94,9 +92,9 @@ const Chat = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.4 }}
-        className={`drop-shadow-glow flex h-[94%] flex-col gap-y-4 rounded-xl bg-black bg-opacity-80 p-2 backdrop-blur-2xl xl:h-full`}
+        className={`drop-shadow-glow flex h-[94%] flex-col gap-y-4 rounded-xl bg-black bg-opacity-[85%] p-2 backdrop-blur-2xl xl:h-full`}
       >
-        <div className={`relative`}>
+        <div className={`relative bg-neutral-950`}>
           <div className={`flex h-16 justify-between px-4 py-2`}>
             <div className={`flex items-center gap-x-2`}>
               <img src={logo} className={`xs:block hidden h-[2.2rem]`} />
@@ -111,13 +109,7 @@ const Chat = () => {
               >
                 <img src={logo} className={`xs:h-[2rem] h-[1.6rem]`} />
               </button>
-              <button
-                className={`rounded-md bg-neutral-200 p-2 hover:bg-white active:bg-neutral-300`}
-                onClick={handleFriends}
-              >
-                <FaUsers className={`xs:text-lg text-xs`} />
-              </button>
-              <Popover>
+              <Popover defaultOpen>
                 <PopoverTrigger
                   className={`rounded-md bg-neutral-200 p-2 hover:bg-white active:bg-neutral-300`}
                 >
@@ -127,7 +119,7 @@ const Chat = () => {
                   className={`border-0 bg-black shadow-md shadow-neutral-700`}
                 >
                   <button
-                    className={`flex items-center gap-x-3 px-2 py-2 font-semibold text-red-400 hover:text-red-300 active:text-red-400`}
+                    className={`flex items-center gap-x-3 px-2 py-2 font-semibold text-red-400 outline-none hover:text-red-300 active:text-red-400`}
                     onClick={copyRoomLink}
                   >
                     <FaRegCopy />
@@ -137,15 +129,25 @@ const Chat = () => {
                     Share this url with your friends to invite them to your
                     NinjaChat
                   </p>
+
+                  <div className={`mb-3 mt-4 h-1 bg-neutral-800`} />
+                  <NavLink
+                    to='/create-room'
+                    className={`px-2 text-neutral-400 hover:text-red-400`}
+                  >
+                    Create new chat
+                  </NavLink>
                 </PopoverContent>
               </Popover>
             </div>
           </div>
           <Details showDetails={showDetails} />
-          <Friends showFriends={showFriends} />
         </div>
 
-        <ChatSection socketIdArray={socketIdArray} />
+        <ChatSection
+          socketIdArray={socketIdArray}
+          room={searchParams.get('room') || 'NinjaChatRoom'}
+        />
         <form
           className='flex w-full gap-x-2'
           onSubmit={handleSubmit(onSubmit)}
