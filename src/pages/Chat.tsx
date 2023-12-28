@@ -3,7 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { IoSend } from 'react-icons/io5';
 import { motion } from 'framer-motion';
 import { FaLink } from 'react-icons/fa';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FaRegCopy } from 'react-icons/fa6';
 import { TMessage, ZodMessageSchema } from '@/types/message';
 import logo from '../assets/ninjachat-logo.png';
@@ -28,6 +28,7 @@ const Chat = () => {
   const location = useLocation();
   const { chatSocket } = socketStore();
   const { setToggleToast } = toastStore();
+  const activityTimerRef = useRef<number | NodeJS.Timeout>();
 
   useEffect(() => {
     const room = searchParams.get('room');
@@ -72,6 +73,14 @@ const Chat = () => {
   const { register, handleSubmit, reset } = form;
 
   const onSubmit = (data: TMessage) => {
+    clearInterval(activityTimerRef.current);
+    activityTimerRef.current = setInterval(
+      () => {
+        onSubmit({ message: 'Seems like there is no activity in this chat..' });
+      },
+      4 * 60 * 1000
+    );
+
     reset();
     const room = searchParams.get('room');
     const name = location.state.name;
@@ -92,13 +101,13 @@ const Chat = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.4 }}
-        className={`drop-shadow-glow flex h-[94%] flex-col gap-y-4 rounded-xl bg-black bg-opacity-[85%] p-2 backdrop-blur-2xl xl:h-full`}
+        className={`flex h-[94%] flex-col gap-y-4 rounded-xl bg-black bg-opacity-[85%] p-2 drop-shadow-glow backdrop-blur-2xl xl:h-full`}
       >
         <div className={`relative bg-neutral-950`}>
           <div className={`flex h-16 justify-between px-4 py-2`}>
             <div className={`flex items-center gap-x-2`}>
-              <img src={logo} className={`xs:block hidden h-[2.2rem]`} />
-              <p className={`xs:text-3xl text-xl font-bold text-neutral-200`}>
+              <img src={logo} className={`hidden h-[2.2rem] xs:block`} />
+              <p className={`text-xl font-bold text-neutral-200 xs:text-3xl`}>
                 ChatNinja
               </p>
             </div>
@@ -107,13 +116,13 @@ const Chat = () => {
                 className={`duration-75 hover:scale-105 active:scale-100`}
                 onClick={handleDetails}
               >
-                <img src={logo} className={`xs:h-[2rem] h-[1.6rem]`} />
+                <img src={logo} className={`h-[1.6rem] xs:h-[2rem]`} />
               </button>
               <Popover defaultOpen>
                 <PopoverTrigger
                   className={`rounded-md bg-neutral-200 p-2 hover:bg-white active:bg-neutral-300`}
                 >
-                  <FaLink className={`xs:text-base text-xs`} />
+                  <FaLink className={`text-xs xs:text-base`} />
                 </PopoverTrigger>
                 <PopoverContent
                   className={`border-0 bg-black shadow-md shadow-neutral-700`}
