@@ -108,7 +108,7 @@ const Chat = () => {
             <div className={`flex items-center gap-x-2`}>
               <img src={logo} className={`hidden h-[2.2rem] xs:block`} />
               <p className={`text-xl font-bold text-neutral-200 xs:text-3xl`}>
-                ChatNinja
+                NinjaChat
               </p>
             </div>
             <div className={`flex items-center gap-x-4`}>
